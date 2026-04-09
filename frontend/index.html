@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Envialo — Comparte archivos fácilmente</title>
+    <style>
+        /* =====================================================================
+           ESTILOS GLOBALES
+           ===================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f0f0f;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* =====================================================================
+           HEADER
+           ===================================================================== */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .header h1 span {
+            color: #6366f1;
+        }
+
+        .header p {
+            color: #888;
+            margin-top: 8px;
+            font-size: 1rem;
+        }
+
+        /* =====================================================================
+           CONTENEDOR PRINCIPAL
+           ===================================================================== */
+        .container {
+            width: 100%;
+            max-width: 520px;
+        }
+
+        /* =====================================================================
+           ZONA DE DRAG & DROP
+           Llamada al backend: POST /api/v1/upload
+           ===================================================================== */
+        .drop-zone {
+            border: 2px dashed #333;
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #1a1a1a;
+        }
+
+        .drop-zone:hover,
+        .drop-zone.dragover {
+            border-color: #6366f1;
+            background: #1e1e2e;
+        }
+
+        .drop-zone .icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .drop-zone h2 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .drop-zone p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .drop-zone input[type="file"] {
+            display: none;
+        }
+
+        /* =====================================================================
+           CAMPO DE MENSAJE OPCIONAL
+           ===================================================================== */
+        .message-input {
+            margin-top: 16px;
+        }
+
+        .message-input input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .message-input input:focus {
+            border-color: #6366f1;
+        }
+
+        .message-input input::placeholder {
+            color: #555;
+        }
+
+        /* =====================================================================
+           BOTÓN DE ENVÍO
+           ===================================================================== */
+        .btn-upload {
+            width: 100%;
+            margin-top: 16px;
+            padding: 14px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: none;
+        }
+
+        .btn-upload:hover {
+            background: #4f46e5;
+        }
+
+        .btn-upload:disabled {
+            background: #333;
+            cursor: not-allowed;
+        }
+
+        /* =====================================================================
+           BARRA DE PROGRESO
+           ===================================================================== */
+        .progress-container {
+            margin-top: 16px;
+            display: none;
+        }
+
+        .progress-bar-bg {
+            background: #222;
+            border-radius: 999px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: #6366f1;
+            border-radius: 999px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #888;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+
+        /* =====================================================================
+           VISTA DE RESULTADO — después de subir
+           ===================================================================== */
+        .result-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 16px;
+            padding: 28px;
+            margin-top: 24px;
+            display: none;
+        }
+
+        .result-card h3 {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 12px;
+        }
+
+        .result-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 12px 16px;
+        }
+
+        .result-link span {
+            flex: 1;
+            font-size: 0.85rem;
+            color: #aaa;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .btn-copy {
+            padding: 6px 14px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-copy:hover {
+            background: #4f46e5;
+        }
+
+        .result-meta {
+            margin-top: 16px;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            font-size: 0.8rem;
+            color: #555;
+        }
+
+        .meta-item span {
+            color: #888;
+        }
+
+        /* =====================================================================
+           VISTA DE DESCARGA — cuando se accede con ?token=...
+           Llamada al backend: GET /api/v1/file/{token}
+           ===================================================================== */
+        .download-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 16px;
+            padding: 28px;
+            display: none;
+        }
+
+        .download-card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 6px;
+        }
+
+        .download-card .message {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #222;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-info .filename {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .file-info .filesize {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .btn-download {
+            padding: 8px 18px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-download:hover {
+            background: #4f46e5;
+        }
+
+        /* =====================================================================
+           MENSAJES DE ERROR Y ÉXITO
+           ===================================================================== */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-top: 16px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .alert-error {
+            background: #2d1b1b;
+            border: 1px solid #5c2626;
+            color: #f87171;
+        }
+
+        .alert-success {
+            background: #1b2d1b;
+            border: 1px solid #265c26;
+            color: #4ade80;
+        }
+
+        /* =====================================================================
+           FOOTER
+           ===================================================================== */
+        .footer {
+            margin-top: 40px;
+            color: #333;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>envia<span>lo</span></h1>
+        <p>Comparte archivos de forma rápida y segura</p>
+    </div>
+
+    <div class="container">
+
+        <!-- =====================================================================
+             VISTA DE DESCARGA
+             Se muestra cuando la URL tiene ?token=...
+             Llama a: GET /api/v1/file/{token}
+             ===================================================================== -->
+        <div class="download-card" id="downloadCard">
+            <h2>📦 Archivos disponibles</h2>
+            <p class="message" id="transferMessage"></p>
+            <div id="filesList"></div>
+            <div class="result-meta" style="margin-top: 16px;">
+                <div class="meta-item">Expira: <span id="expiresAt"></span></div>
+                <div class="meta-item">Descargas: <span id="downloadCount"></span></div>
+            </div>
+        </div>
+
+        <!-- =====================================================================
+             VISTA DE SUBIDA
+             Se muestra cuando no hay token en la URL
+             ===================================================================== -->
+        <div id="uploadView">
+
+            <!-- Zona de Drag & Drop -->
+            <div class="drop-zone" id="dropZone">
+                <div class="icon">📁</div>
+                <h2>Arrastra tu archivo aquí</h2>
+                <p>o haz clic para seleccionar</p>
+                <!-- Input oculto que se activa al hacer clic en la zona -->
+                <input type="file" id="fileInput">
+            </div>
+
+            <!-- Mensaje opcional -->
+            <div class="message-input">
+                <input
+                    type="text"
+                    id="messageInput"
+                    placeholder="Mensaje para el destinatario (opcional)"
+                    maxlength="500"
+                >
+            </div>
+
+            <!-- Botón de subida (visible solo cuando hay archivo seleccionado) -->
+            <button class="btn-upload" id="btnUpload">
+                Enviar archivo
+            </button>
+
+            <!-- Barra de progreso -->
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressFill"></div>
+                </div>
+                <p class="progress-text" id="progressText">Subiendo...</p>
+            </div>
+
+            <!-- Alerta de error -->
+            <div class="alert alert-error" id="alertError"></div>
+
+            <!-- Tarjeta de resultado después de subir exitosamente -->
+            <div class="result-card" id="resultCard">
+                <h3>✅ Archivo listo para compartir</h3>
+                <div class="result-link">
+                    <span id="resultUrl"></span>
+                    <button class="btn-copy" id="btnCopy">Copiar</button>
+                </div>
+                <div class="result-meta">
+                    <div class="meta-item">Archivo: <span id="resultFilename"></span></div>
+                    <div class="meta-item">Tamaño: <span id="resultSize"></span></div>
+                    <div class="meta-item">Expira: <span id="resultExpires"></span></div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="footer">
+        Envialo — Archivos eliminados automáticamente al expirar
+    </div>
+
+    <script>
+        // =====================================================================
+        // CONFIGURACIÓN
+        // Cambia esta URL si tu backend corre en otro puerto o dominio
+        // =====================================================================
+        const API_BASE = 'http://localhost:8000/api/v1';
+
+        // =====================================================================
+        // UTILIDADES
+        // =====================================================================
+
+        // Formatea bytes a formato legible (KB, MB, GB)
+        function formatBytes(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        // Formatea fecha ISO a formato legible
+        function formatDate(isoString) {
+            return new Date(isoString).toLocaleString('es-MX', {
+                day: '2-digit', month: 'short',
+                hour: '2-digit', minute: '2-digit'
+            });
+        }
+
+        // Muestra un mensaje de error
+        function showError(message) {
+            const alert = document.getElementById('alertError');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            setTimeout(() => alert.style.display = 'none', 5000);
+        }
+
+        // =====================================================================
+        // PUNTO 1: LLAMADA AL BACKEND — POST /api/v1/upload
+        // Se ejecuta cuando el usuario hace clic en "Enviar archivo"
+        // Usa XMLHttpRequest para tener acceso al progreso de subida
+        // =====================================================================
+        async function uploadFile(file, message) {
+            const formData = new FormData();
+            formData.append('file', file);
+            if (message) formData.append('message', message);
+
+            // Muestra la barra de progreso
+            document.getElementById('progressContainer').style.display = 'block';
+            document.getElementById('btnUpload').disabled = true;
+
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+
+                // Actualiza la barra de progreso durante la subida
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        document.getElementById('progressFill').style.width = percent + '%';
+                        document.getElementById('progressText').textContent =
+                            `Subiendo... ${percent}%`;
+                    }
+                };
+
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        resolve(JSON.parse(xhr.responseText));
+                    } else {
+                        const error = JSON.parse(xhr.responseText);
+                        reject(new Error(error.detail || 'Error al subir el archivo'));
+                    }
+                };
+
+                xhr.onerror = () => reject(new Error('Error de conexión con el servidor'));
+
+                xhr.open('POST', `${API_BASE}/upload`);
+                xhr.send(formData);
+            });
+        }
+
+        // =====================================================================
+        // PUNTO 2: LLAMADA AL BACKEND — GET /api/v1/file/{token}
+        // Se ejecuta al cargar la página si hay un token en la URL
+        // Muestra la vista de descarga con la información del transfer
+        // =====================================================================
+        async function loadTransferInfo(token) {
+            try {
+                const response = await fetch(`${API_BASE}/file/${token}`);
+
+                if (response.status === 404) {
+                    showError('El enlace no existe o es inválido.');
+                    return;
+                }
+                if (response.status === 410) {
+                    showError('Este enlace ha expirado o fue eliminado.');
+                    return;
+                }
+
+                const data = await response.json();
+
+                // Muestra la vista de descarga y oculta la de subida
+                document.getElementById('uploadView').style.display = 'none';
+                document.getElementById('downloadCard').style.display = 'block';
+
+                // Rellena la información del transfer
+                document.getElementById('transferMessage').textContent =
+                    data.message ? `"${data.message}"` : '';
+                document.getElementById('expiresAt').textContent =
+                    formatDate(data.expires_at);
+                document.getElementById('downloadCount').textContent =
+                    data.download_count;
+
+                // Genera la lista de archivos con botones de descarga
+                const filesList = document.getElementById('filesList');
+                filesList.innerHTML = '';
+
+                data.files.forEach(file => {
+                    const item = document.createElement('div');
+                    item.className = 'file-item';
+                    item.innerHTML = `
+                        <div class="file-info">
+                            <div class="filename">📄 ${file.filename}</div>
+                            <div class="filesize">${formatBytes(file.file_size)}</div>
+                        </div>
+                        <button class="btn-download"
+                            onclick="downloadFile('${token}', '${file.filename}')">
+                            Descargar
+                        </button>
+                    `;
+                    filesList.appendChild(item);
+                });
+
+            } catch (error) {
+                showError('Error al cargar la información del archivo.');
+            }
+        }
+
+        // =====================================================================
+        // PUNTO 3: LLAMADA AL BACKEND — GET /api/v1/download/{token}
+        // Se ejecuta cuando el usuario hace clic en "Descargar"
+        // Obtiene la URL firmada de Supabase y abre la descarga
+        // =====================================================================
+        async function downloadFile(token, filename) {
+            try {
+                const response = await fetch(`${API_BASE}/download/${token}`);
+
+                if (!response.ok) {
+                    showError('No se pudo generar el enlace de descarga.');
+                    return;
+                }
+
+                const files = await response.json();
+
+                // Busca el archivo específico y abre su URL firmada
+                const fileData = files.find(f => f.filename === filename);
+                if (fileData) {
+                    // Abre la URL firmada en una nueva pestaña para iniciar descarga
+                    window.open(fileData.download_url, '_blank');
+                }
+
+            } catch (error) {
+                showError('Error al descargar el archivo.');
+            }
+        }
+
+        // =====================================================================
+        // MANEJO DEL DRAG & DROP
+        // =====================================================================
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        let selectedFile = null;
+
+        // Clic en la zona abre el selector de archivos
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        // Previene el comportamiento por defecto del navegador al arrastrar
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        // Cuando se suelta el archivo en la zona
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) selectFile(file);
+        });
+
+        // Cuando se selecciona archivo con el input
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files[0]) selectFile(fileInput.files[0]);
+        });
+
+        // Actualiza la UI cuando se selecciona un archivo
+        function selectFile(file) {
+            selectedFile = file;
+            dropZone.innerHTML = `
+                <div class="icon">✅</div>
+                <h2>${file.name}</h2>
+                <p>${formatBytes(file.size)}</p>
+            `;
+            document.getElementById('btnUpload').style.display = 'block';
+        }
+
+        // =====================================================================
+        // MANEJO DEL BOTÓN DE SUBIDA
+        // =====================================================================
+        document.getElementById('btnUpload').addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            const message = document.getElementById('messageInput').value;
+
+            try {
+                const result = await uploadFile(selectedFile, message);
+
+                // Oculta la barra de progreso
+                document.getElementById('progressContainer').style.display = 'none';
+
+                // Construye la URL de descarga para compartir
+                const shareUrl = `${window.location.origin}?token=${result.token}`;
+
+                // Muestra la tarjeta de resultado
+                const resultCard = document.getElementById('resultCard');
+                document.getElementById('resultUrl').textContent = shareUrl;
+                document.getElementById('resultFilename').textContent = result.filename;
+                document.getElementById('resultSize').textContent =
+                    formatBytes(result.file_size);
+                document.getElementById('resultExpires').textContent =
+                    formatDate(result.expires_at);
+                resultCard.style.display = 'block';
+
+                // Oculta el botón de subida
+                document.getElementById('btnUpload').style.display = 'none';
+
+            } catch (error) {
+                document.getElementById('progressContainer').style.display = 'none';
+                document.getElementById('btnUpload').disabled = false;
+                showError(error.message);
+            }
+        });
+
+        // =====================================================================
+        // BOTÓN DE COPIAR URL
+        // =====================================================================
+        document.getElementById('btnCopy').addEventListener('click', () => {
+            const url = document.getElementById('resultUrl').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                document.getElementById('btnCopy').textContent = '¡Copiado!';
+                setTimeout(() => {
+                    document.getElementById('btnCopy').textContent = 'Copiar';
+                }, 2000);
+            });
+        });
+
+        // =====================================================================
+        // INICIALIZACIÓN — verifica si hay token en la URL al cargar
+        // Si hay token: muestra vista de descarga
+        // Si no hay token: muestra vista de subida
+        // =====================================================================
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        if (token) {
+            loadTransferInfo(token);
+        }
+    </script>
+</body>
+</html>

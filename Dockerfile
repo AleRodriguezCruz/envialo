@@ -1,5 +1,4 @@
-# Stage 1: Builder
-FROM python:3.11-slim AS builder
+FROM python:3.11-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libmagic1 \
@@ -12,24 +11,9 @@ WORKDIR /app
 COPY requirements.txt ./
 
 RUN pip install --upgrade pip && \
-    pip install --prefix=/install -r requirements.txt
+    pip install -r requirements.txt
 
-# Stage 2: Runtime
-FROM python:3.11-slim AS runtime
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libmagic1 \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN useradd --create-home --shell /bin/bash appuser
-
-WORKDIR /app
-
-COPY --from=builder /install /usr/local
 COPY . .
-
-RUN chown -R appuser:appuser /app
-USER appuser
 
 EXPOSE 8000
 

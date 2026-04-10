@@ -176,24 +176,24 @@ python scripts/run_worker.py
 
 envialo/
 ├── app/
-│   ├── api/v1/          # Endpoints (upload, download, files)
-│   ├── core/            # Config, seguridad, excepciones
-│   ├── db/              # Modelos y conexiones a DB
-│   ├── repositories/    # Patrón Repository (acceso a DB)
-│   ├── services/        # Lógica de negocio
-│   ├── workers/         # Worker de limpieza automática
-│   └── main.py          # Entry point
-├── frontend/
-│   └── index.html       # UI completa
-├── migrations/          # Migraciones Alembic
-├── scripts/             # Scripts utilitarios
-├── tests/               # Tests automatizados
-├── docker-compose.yml
-├── Dockerfile
-└── .env.example
+│   ├── api/          # Controladores de la API
+│   ├── core/         # Seguridad y Configuración global
+│   ├── db/           # Modelos de SQLAlchemy y conexión
+│   ├── repositories/ # Consultas SQL (Patrón Repository)
+│   ├── services/     # Lógica de negocio (Orquestadores)
+│   └── workers/      # Tareas de limpieza (Background Tasks)
+├── frontend/         # Interfaz de usuario
+├── migrations/       # Historial de versiones de DB
+└── scripts/          # Automatización de tareas
 
 ---
+👥 Créditos e Integrantes
 
+Este proyecto fue desarrollado con un enfoque profesional y educativo por:
+
+    Alejandra Rodríguez Cruz de la Cruz- 
+
+    Flor Jazmín Mayon Cisneros
 ## Justificación de arquitectura
 
 ### ¿Por qué PostgreSQL + Supabase?

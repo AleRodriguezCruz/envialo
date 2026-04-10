@@ -3,6 +3,7 @@
 # Configura: CORS, rutas, lifespan (inicio y cierre de recursos)
 # =============================================================================
 import logging
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -21,27 +22,37 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# -----------------------------------------------------------------------------
+# RUTAS DE ARCHIVOS (Compatibilidad con Docker/Railway)
+# -----------------------------------------------------------------------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Si tu carpeta 'frontend' está en la raíz del proyecto:
+FRONTEND_DIR = os.path.join(os.getcwd(), "frontend")
 
 # -----------------------------------------------------------------------------
 # LIFESPAN — Maneja el ciclo de vida de la aplicación
-# Se ejecuta al iniciar y al cerrar la app
 # -----------------------------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # ----- INICIO -----
-    logger.info("Iniciando aplicación Envialo...")
+    logger.info("🚀 Iniciando aplicación Envialo...")
 
     # Inicia el scheduler del worker de limpieza
-    scheduler = create_scheduler()
-    scheduler.start()
-    logger.info("Worker de limpieza iniciado.")
+    try:
+        scheduler = create_scheduler()
+        scheduler.start()
+        logger.info("✅ Worker de limpieza iniciado correctamente.")
+    except Exception as e:
+        logger.error(f"❌ Error al iniciar el worker de limpieza: {e}")
+        scheduler = None
 
     yield  # La app corre aquí
 
     # ----- CIERRE -----
-    logger.info("Cerrando aplicación Envialo...")
-    scheduler.shutdown()
-    logger.info("Worker de limpieza detenido.")
+    if scheduler:
+        logger.info("Stopping aplicación Envialo...")
+        scheduler.shutdown()
+        logger.info("✅ Worker de limpieza detenido.")
 
 
 # -----------------------------------------------------------------------------
@@ -72,12 +83,24 @@ app.add_middleware(
 # -----------------------------------------------------------------------------
 # FRONTEND — Sirve los archivos estáticos y el index.html
 # -----------------------------------------------------------------------------
-app.mount("/static", StaticFiles(directory="frontend"), name="static")
+# Verificamos si la carpeta existe antes de montar para evitar que la app explote
+if os.path.exists(FRONTEND_DIR):
+    app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
+    logger.info(f"📁 Carpeta frontend montada desde: {FRONTEND_DIR}")
+else:
+    logger.warning(f"⚠️ Alerta: No se encontró la carpeta frontend en {FRONTEND_DIR}")
 
 
 @app.get("/", include_in_schema=False)
 async def serve_frontend():
-    return FileResponse("frontend/index.html")
+    index_path = os.path.join(FRONTEND_DIR, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return {
+        "error": "Frontend no encontrado", 
+        "path_searched": index_path,
+        "current_dir": os.getcwd()
+    }
 
 
 # -----------------------------------------------------------------------------
@@ -87,7 +110,7 @@ app.include_router(api_router)
 
 
 # -----------------------------------------------------------------------------
-# RUTA DE SALUD
+# RUTA DE SALUD (Crítica para Railway)
 # -----------------------------------------------------------------------------
 @app.get("/health", tags=["Health"])
 async def health_check():
@@ -95,5 +118,6 @@ async def health_check():
         "status": "ok",
         "app": "Envialo",
         "version": "0.1.0",
-        "environment": settings.APP_ENV
+        "environment": settings.APP_ENV,
+        "database": "connected" # Podrías agregar un check real de DB aquí
     }

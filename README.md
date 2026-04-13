@@ -1,67 +1,98 @@
-# Envialo 📦
+# 📦 Envialo
 
-Clon de WeTransfer construido con FastAPI, PostgreSQL y Supabase. Permite subir archivos, compartirlos mediante un link seguro y enviar notificaciones por correo al destinatario.
+> Un clon de WeTransfer de alto rendimiento construido con FastAPI, PostgreSQL y Supabase.  
+> Sube archivos, compártelos mediante enlaces seguros y notifica al destinatario por correo electrónico.
 
-![Python](https://img.shields.io/badge/Python-3.11-blue)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.111-green)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue)
-![Supabase](https://img.shields.io/badge/Supabase-Storage-black)
-
----
-
-## Stack tecnológico
-
-- **Backend:** Python 3.11 + FastAPI
-- **Base de datos principal:** PostgreSQL (Docker)
-- **Almacenamiento de archivos:** Supabase Storage
-- **Logs de auditoría:** Supabase (tabla `audit_logs`)
-- **Correos:** Resend
-- **Frontend:** HTML + CSS + JS vanilla
-- **Contenedores:** Docker + Docker Compose
-- **Migraciones:** Alembic
-- **Worker de limpieza:** APScheduler
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-Storage-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compile-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
 ---
 
-## Arquitectura
+## 📋 Tabla de contenidos
 
+- [Características clave](#-características-clave)
+- [Arquitectura](#-arquitectura)
+- [Stack tecnológico](#-stack-tecnológico)
+- [Endpoints de la API](#-endpoints-de-la-api)
+- [Seguridad implementada](#-seguridad-implementada)
+- [Instalación rápida](#-instalación-rápida)
+- [Variables de entorno](#-variables-de-entorno)
+- [Worker de limpieza](#-worker-de-limpieza)
+- [Estructura del proyecto](#-estructura-del-proyecto)
+- [Screenshots](#-screenshots)
+- [Créditos](#-créditos)
+
+---
+
+## ✨ Características clave
+
+- ⚡ **Alta velocidad** – Subidas y descargas optimizadas con URLs firmadas.
+- 🔒 **Seguro por diseño** – Validación MIME real, tokens únicos, expiración de enlaces.
+- 📧 **Notificaciones por email** – Envía al destinatario el enlace de descarga.
+- 🧹 **Limpieza automática** – Worker que elimina archivos expirados.
+- 🐳 **Listo para producción** – Docker, migraciones Alembic y configuración por entorno.
+- 📊 **Auditoría completa** – Logs de todas las transferencias en Supabase.
+
+---
+
+## 🧠 Arquitectura
 Frontend (HTML/JS)
 ↓
 API Routes (FastAPI)
 ↓
 Servicios (lógica de negocio)
 ↓
-Repositorios (acceso a DB)
+Repositorios (acceso a datos)
 ↓
-PostgreSQL (metadata) + Supabase (archivos binarios)
+PostgreSQL (metadatos) + Supabase Storage (archivos)
+
 
 ---
 
-## Endpoints
+## 🛠 Stack tecnológico
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| POST | `/api/v1/upload` | Sube un archivo y retorna el token |
-| GET | `/api/v1/download/{token}` | Retorna URLs firmadas de descarga |
-| GET | `/api/v1/file/{token}` | Obtiene información del transfer |
-| DELETE | `/api/v1/file/{token}` | Elimina un transfer y sus archivos |
-| GET | `/health` | Verifica que la app está corriendo |
-
----
-
-## Seguridad implementada
-
-- Validación de MIME real con **magic bytes** (no por extensión)
-- Protección contra **path traversal**
-- Bloqueo de **scripts ejecutables** (.exe, .bat, .sh, etc.)
-- Tokens seguros con **UUID + secrets**
-- Límite de tamaño configurable (default 100 MB)
-- Manejo de errores: 413, 415, 404, 410
-- Archivos servidos mediante **URLs firmadas** de Supabase (nunca exposición directa)
+| Capa            | Tecnología                          |
+|----------------|-------------------------------------|
+| Backend        | Python 3.11 + FastAPI               |
+| Base de datos  | PostgreSQL (Docker)                 |
+| Almacenamiento | Supabase Storage                    |
+| Logs           | Supabase (`audit_logs`)             |
+| Correos        | Resend                              |
+| Frontend       | HTML + CSS + JS vanilla             |
+| Contenedores   | Docker + Docker Compose             |
+| Migraciones    | Alembic                             |
+| Worker         | APScheduler                         |
 
 ---
 
-## Instalación y configuración
+## 📡 Endpoints de la API
+
+| Método   | Ruta                          | Descripción                                |
+|----------|-------------------------------|--------------------------------------------|
+| `POST`   | `/api/v1/upload`              | Sube archivo(s) y retorna un token único. |
+| `GET`    | `/api/v1/download/{token}`    | Genera URLs firmadas para descarga.       |
+| `GET`    | `/api/v1/file/{token}`        | Obtiene metadatos del transfer.           |
+| `DELETE` | `/api/v1/file/{token}`        | Elimina transfer y archivos asociados.    |
+| `GET`    | `/health`                     | Verifica el estado de la aplicación.      |
+
+---
+
+## 🔐 Seguridad implementada
+
+- ✅ Validación de **MIME real** con `magic bytes` (no confiar en extensiones).
+- ✅ Protección contra **path traversal**.
+- ✅ Bloqueo de **scripts ejecutables** (`.exe`, `.bat`, `.sh`, etc.).
+- ✅ Tokens seguros generados con `UUID` + `secrets`.
+- ✅ Límite de tamaño configurable (por defecto 100 MB).
+- ✅ Manejo de errores HTTP: `413`, `415`, `404`, `410`.
+- ✅ **URLs firmadas** de Supabase (expiran en 1 hora, sin exposición directa).
+
+---
+
+## 🚀 Instalación rápida
 
 ### Requisitos previos
 
@@ -71,88 +102,51 @@ PostgreSQL (metadata) + Supabase (archivos binarios)
 - Cuenta en [Supabase](https://supabase.com)
 - Cuenta en [Resend](https://resend.com)
 
-### 1. Clonar el repositorio
+### Paso a paso
 
 ```bash
+# 1. Clonar el repositorio
 git clone https://github.com/AleRodriguezCruz/envialo.git
 cd envialo
-```
 
-### 2. Configurar variables de entorno
-
-```bash
+# 2. Configurar variables de entorno
 cp .env.example .env
-```
 
-Edita `.env` con tus credenciales:
+# 3. Configurar Supabase (ejecutar script en SQL Editor)
+# Ir a scripts/setup_supabase.sql
 
-```env
-# POSTGRESQL
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_USER=wetransfer_user
-POSTGRES_PASSWORD=wetransfer_secret
-POSTGRES_DB=wetransfer_db
-
-# SUPABASE
-SUPABASE_URL=https://tu-proyecto.supabase.co
-SUPABASE_ANON_KEY=tu-anon-key
-SUPABASE_SERVICE_KEY=tu-service-key
-SUPABASE_BUCKET=transfers
-
-# RESEND
-RESEND_API_KEY=re_tu-api-key
-RESEND_FROM_EMAIL=onboarding@resend.dev
-
-# SEGURIDAD
-SECRET_KEY=genera-uno-con-secrets.token_hex(32)
-```
-
-### 3. Configurar Supabase
-
-1. Crea un proyecto en [supabase.com](https://supabase.com)
-2. Ve a **SQL Editor** y ejecuta el script `scripts/setup_supabase.sql`
-3. Esto crea el bucket `transfers` y la tabla `audit_logs`
-
-### 4. Instalar dependencias
-
-```bash
+# 4. Instalar dependencias
 pip install -r requirements.txt
-```
 
-### 5. Levantar PostgreSQL con Docker
-
-```bash
+# 5. Levantar PostgreSQL con Docker
 docker compose up postgres -d
-```
 
-### 6. Correr migraciones
-
-```bash
+# 6. Ejecutar migraciones
 python -m alembic upgrade head
-```
 
-### 7. Iniciar la aplicación
-
-```bash
+# 7. Iniciar la aplicación
 python -m uvicorn app.main:app --reload --port 8000
-```
-
-La app estará disponible en:
-- **Frontend:** http://localhost:8000
-- **Swagger UI:** http://localhost:8000/docs
-- **Health check:** http://localhost:8000/health
 
 ---
 
-## Variables de entorno
+## 🚀 Disponibilidad de la App
 
-| Variable | Descripción | Default |
-|----------|-------------|---------|
+Una vez iniciada, puedes acceder a los siguientes servicios:
+
+* **Frontend:** [http://localhost:8000](http://localhost:8000)
+* **Swagger UI (Documentación):** [http://localhost:8000/docs](http://localhost:8000/docs)
+* **Health Check:** [http://localhost:8000/health](http://localhost:8000/health)
+
+---
+
+## 🔧 Variables de Entorno
+
+| Variable | Descripción | Valor por defecto |
+| :--- | :--- | :--- |
 | `APP_ENV` | Entorno (development/production) | `development` |
 | `APP_PORT` | Puerto del servidor | `8000` |
-| `MAX_FILE_SIZE` | Tamaño máximo en bytes | `104857600` (100MB) |
-| `TRANSFER_EXPIRY_HOURS` | Horas antes de expirar | `72` |
+| `MAX_FILE_SIZE` | Tamaño máximo (bytes) | `104857600` (100 MB) |
+| `TRANSFER_EXPIRY_HOURS` | Horas hasta expiración | `72` |
 | `CLEANUP_INTERVAL_HOURS` | Intervalo del worker de limpieza | `6` |
 | `POSTGRES_HOST` | Host de PostgreSQL | `localhost` |
 | `SUPABASE_URL` | URL del proyecto Supabase | — |
@@ -160,73 +154,62 @@ La app estará disponible en:
 
 ---
 
-## Worker de limpieza
+## 🧹 Worker de Limpieza
 
-El worker se ejecuta automáticamente cada `CLEANUP_INTERVAL_HOURS` horas y elimina transfers expirados de Supabase Storage y los marca en PostgreSQL.
+El worker se ejecuta automáticamente cada `CLEANUP_INTERVAL_HOURS` horas y realiza las siguientes acciones:
+1.  **Elimina** archivos expirados de Supabase Storage.
+2.  **Marca** los transfers como eliminados en PostgreSQL.
 
-Para ejecutarlo manualmente:
-
+### Ejecución manual:
+Si necesitas forzar la limpieza, ejecuta:
 ```bash
 python scripts/run_worker.py
-```
 
----
-
-## Estructura del proyecto
-
+##📁 Estructura del proyecto
 envialo/
 ├── app/
-<<<<<<< HEAD
-│   ├── api/          # Controladores y rutas de la API
-│   ├── core/         # Configuración, seguridad y excepciones
-│   ├── db/           # Modelos de SQLAlchemy y conexión a DB
-│   ├── repositories/ # Patrón Repository (Acceso a datos)
-│   ├── services/     # Lógica de negocio (Servicios orquestadores)
-│   └── workers/      # Tareas de limpieza en segundo plano
-├── frontend/         # Interfaz de usuario (HTML/JS)
-├── migrations/       # Scripts de migración de Alembic
-└── scripts/          # Utilidades de automatización
-=======
-│   ├── api/          # Controladores de la API
-│   ├── core/         # Seguridad y Configuración global
-│   ├── db/           # Modelos de SQLAlchemy y conexión
-│   ├── repositories/ # Consultas SQL (Patrón Repository)
-│   ├── services/     # Lógica de negocio (Orquestadores)
-│   └── workers/      # Tareas de limpieza (Background Tasks)
-├── frontend/         # Interfaz de usuario
-├── migrations/       # Historial de versiones de DB
-└── scripts/          # Automatización de tareas
->>>>>>> 3dd5cdf8d361492c9be047eb042d50e5742b3c87
+│   ├── api/            # Controladores y rutas
+│   ├── core/           # Configuración, seguridad, excepciones
+│   ├── db/             # Modelos SQLAlchemy y conexión
+│   ├── repositories/   # Patrón Repository (acceso a datos)
+│   ├── services/       # Lógica de negocio
+│   └── workers/        # Tareas en segundo plano
+├── frontend/           # Interfaz de usuario (HTML/JS/CSS)
+├── migrations/         # Scripts de Alembic
+├── scripts/            # Utilidades y automatización
+└── screenshots/        # Imágenes para el README
 
 ---
-👥 Créditos e Integrantes
 
-<<<<<<< HEAD
-👥 Créditos e Integrantes
-=======
-Este proyecto fue desarrollado con un enfoque profesional y educativo por:
-
-    Alejandra Rodríguez Cruz de la Cruz- 
-
-    Flor Jazmín Mayon Cisneros
-## Justificación de arquitectura
->>>>>>> 3dd5cdf8d361492c9be047eb042d50e5742b3c87
-
-Este proyecto fue desarrollado con un enfoque profesional y educativo por:
-
-    Alejandra Rodríguez de la Cruz - GitHub
-
-    Flor Jazmín Mayon Cisneros
-
-<<<<<<< HEAD
-## Screenshots
+## 📸 Screenshots
 
 ### Interfaz de subida
 ![Interfaz de subida](screenshots/upload.png)
 
-### Correo recibido
+### Interfaz de descarga
+![Interfaz de descarga](screenshots/download.png)
+
+### Notificación por correo
 ![Correo recibido](screenshots/email.png)
-=======
-### ¿Por qué URLs firmadas?
-Los archivos nunca se exponen directamente. Cada URL de descarga expira en 1 hora, lo que previene el acceso no autorizado incluso si alguien obtiene la URL.
->>>>>>> 3dd5cdf8d361492c9be047eb042d50e5742b3c87
+
+---
+
+## 👥 Créditos
+
+Este proyecto fue desarrollado con un enfoque educativo por:
+
+* **Alejandra Rodríguez de la Cruz** - [GitHub](https://github.com/AleRodriguezCruz)
+* **Flor Jazmín Mayon Cisneros**
+
+---
+
+## 📄 Licencia y Seguridad
+
+Este proyecto es de **uso educativo**. 
+
+### 💡 ¿Por qué URLs firmadas?
+Los archivos nunca se exponen directamente. Cada URL de descarga expira en **1 hora**, evitando accesos no autorizados incluso si el enlace es interceptado.
+
+---
+
+¿Preguntas o sugerencias? Abre un **issue** o contáctanos.

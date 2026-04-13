@@ -171,6 +171,7 @@ Si necesitas forzar la limpieza, ejecuta:
 python scripts/run_worker.py
 ```
 ##📁 Estructura del proyecto
+```bash
 envialo/
 ├── app/
 │   ├── api/            # Controladores y rutas
@@ -184,7 +185,6 @@ envialo/
 ├── scripts/            # Utilidades y automatización
 └── screenshots/        # Imágenes para el README
 ```
----
 
 ## 📸 Screenshots
 

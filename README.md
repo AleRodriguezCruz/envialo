@@ -97,11 +97,12 @@ PostgreSQL (metadatos) + Supabase Storage (archivos)
 
 ### Requisitos previos
 
+
 - Python 3.11+
 - Docker Desktop
 - Git
 - Cuenta en [Supabase](https://supabase.com)
-- Cuenta en [Resend](https://resend.com)
+- Cuenta de Gmail (con **Contraseña de Aplicación** activada)
 
 ### Paso a paso
 
@@ -151,6 +152,10 @@ Una vez iniciada, puedes acceder a los siguientes servicios:
 | `POSTGRES_HOST` | Host de PostgreSQL | `localhost` |
 | `SUPABASE_URL` | URL del proyecto Supabase | — |
 | `RESEND_API_KEY` | API key de Resend | — |
+| `SMTP_USER` | Tu correo de Gmail | - |
+| `SMTP_PASSWORD` | Contraseña de aplicación (16 letras) | - |
+| `SMTP_FROM_NAME` | Nombre que aparece en el remitente | Envialo 📦|
+
 
 ---
 

@@ -61,7 +61,7 @@ PostgreSQL (metadatos) + Supabase Storage (archivos)
 | Base de datos  | PostgreSQL (Docker)                 |
 | Almacenamiento | Supabase Storage                    |
 | Logs           | Supabase (`audit_logs`)             |
-| Correos        | Resend                              |
+| Correos        | Resend, SMTP                        |
 | Frontend       | HTML + CSS + JS vanilla             |
 | Contenedores   | Docker + Docker Compose             |
 | Migraciones    | Alembic                             |
@@ -169,7 +169,7 @@ El worker se ejecuta automáticamente cada `CLEANUP_INTERVAL_HOURS` horas y real
 Si necesitas forzar la limpieza, ejecuta:
 ```bash
 python scripts/run_worker.py
-
+```
 ##📁 Estructura del proyecto
 envialo/
 ├── app/
@@ -183,7 +183,7 @@ envialo/
 ├── migrations/         # Scripts de Alembic
 ├── scripts/            # Utilidades y automatización
 └── screenshots/        # Imágenes para el README
-
+```
 ---
 
 ## 📸 Screenshots

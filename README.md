@@ -176,34 +176,30 @@ python scripts/run_worker.py
 
 envialo/
 ├── app/
-│   ├── api/v1/          # Endpoints (upload, download, files)
-│   ├── core/            # Config, seguridad, excepciones
-│   ├── db/              # Modelos y conexiones a DB
-│   ├── repositories/    # Patrón Repository (acceso a DB)
-│   ├── services/        # Lógica de negocio
-│   ├── workers/         # Worker de limpieza automática
-│   └── main.py          # Entry point
-├── frontend/
-│   └── index.html       # UI completa
-├── migrations/          # Migraciones Alembic
-├── scripts/             # Scripts utilitarios
-├── tests/               # Tests automatizados
-├── docker-compose.yml
-├── Dockerfile
-└── .env.example
+│   ├── api/          # Controladores y rutas de la API
+│   ├── core/         # Configuración, seguridad y excepciones
+│   ├── db/           # Modelos de SQLAlchemy y conexión a DB
+│   ├── repositories/ # Patrón Repository (Acceso a datos)
+│   ├── services/     # Lógica de negocio (Servicios orquestadores)
+│   └── workers/      # Tareas de limpieza en segundo plano
+├── frontend/         # Interfaz de usuario (HTML/JS)
+├── migrations/       # Scripts de migración de Alembic
+└── scripts/          # Utilidades de automatización
 
 ---
 
-## Justificación de arquitectura
+👥 Créditos e Integrantes
 
-### ¿Por qué PostgreSQL + Supabase?
-PostgreSQL almacena la metadata (tokens, fechas, estado) que requiere queries relacionales eficientes. Supabase Storage maneja los archivos binarios con URLs firmadas, evitando exponer los archivos directamente y aprovechando su CDN global.
+Este proyecto fue desarrollado con un enfoque profesional y educativo por:
 
-### ¿Por qué el patrón Repository?
-Separa la lógica de negocio del acceso a datos. Los servicios no conocen SQLAlchemy, solo llaman métodos del repositorio. Esto facilita los tests y futuros cambios de base de datos.
+    Alejandra Rodríguez de la Cruz - GitHub
 
-### ¿Por qué APScheduler?
-Se integra nativamente con el event loop de FastAPI (asyncio) sin necesidad de servicios externos como Celery o Redis, manteniendo el stack simple para un proyecto académico.
+    Flor Jazmín Mayon Cisneros
 
-### ¿Por qué URLs firmadas?
-Los archivos nunca se exponen directamente. Cada URL de descarga expira en 1 hora, lo que previene el acceso no autorizado incluso si alguien obtiene la URL.
+## Screenshots
+
+### Interfaz de subida
+![Interfaz de subida](screenshots/upload.png)
+
+### Correo recibido
+![Correo recibido](screenshots/email.png)

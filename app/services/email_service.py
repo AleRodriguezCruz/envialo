@@ -1,18 +1,9 @@
-# =============================================================================
-# email_service.py — Servicio de envío de correos con Resend
-# Envía el link de descarga al destinatario por email
-# =============================================================================
-import resend
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from app.core.config import settings
 
-resend.api_key = settings.RESEND_API_KEY
-
-
 class EmailService:
-
-    # -------------------------------------------------------------------------
-    # ENVIAR correo con el link de descarga
-    # -------------------------------------------------------------------------
     async def send_download_link(
         self,
         to_email: str,
@@ -22,42 +13,42 @@ class EmailService:
         expires_at: str | None = None
     ) -> bool:
         try:
+            # 1. Crear el contenedor del mensaje
+            email_msg = MIMEMultipart()
+            email_msg["From"] = f"{settings.SMTP_FROM_NAME} <{settings.SMTP_USER}>"
+            email_msg["To"] = to_email
+            email_msg["Subject"] = f"📦 {filename} — Archivo compartido contigo"
+
+            # 2. Diseño HTML del correo
             html_content = f"""
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
                 <h2 style="color: #6366f1;">📦 Te han enviado un archivo</h2>
-
-                {"<p><em>" + message + "</em></p>" if message else ""}
-
+                {f"<p style='background: #f3f4f6; padding: 10px; border-left: 4px solid #6366f1;'><em>{message}</em></p>" if message else ""}
                 <p>Puedes descargar <strong>{filename}</strong> haciendo clic en el botón:</p>
-
-                <a href="{download_url}"
-                   style="display: inline-block; padding: 12px 24px;
-                          background: #6366f1; color: white;
-                          text-decoration: none; border-radius: 8px;
-                          font-weight: bold;">
-                    Descargar archivo
-                </a>
-
-                {"<p style='color: #888; font-size: 0.85rem;'>⏰ Expira: " + expires_at + "</p>" if expires_at else ""}
-
-                <p style="color: #888; font-size: 0.8rem;">
-                    Enviado con <a href="http://localhost:8000" style="color: #6366f1;">Envialo</a>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="{download_url}" 
+                       style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                        Descargar archivo
+                    </a>
+                </div>
+                {f"<p style='color: #ef4444; font-size: 0.85rem;'>⏰ Expira: {expires_at}</p>" if expires_at else ""}
+                <p style="color: #888; font-size: 0.8rem; margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px;">
+                    Enviado con <strong>Envialo</strong>
                 </p>
             </div>
             """
+            email_msg.attach(MIMEText(html_content, "html"))
 
-            resend.Emails.send({
-                "from": settings.RESEND_FROM_EMAIL,
-                "to": to_email,
-                "subject": f"📦 {filename} — Archivo compartido contigo",
-                "html": html_content
-            })
+            # 3. Envío mediante el servidor de Google
+            with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
+                server.starttls()  # Activar cifrado de seguridad
+                server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+                server.send_message(email_msg)
+            
             return True
 
         except Exception as e:
-            print(f"[EmailService] Error al enviar correo: {str(e)}")
+            print(f"[EmailService] Error SMTP: {str(e)}")
             return False
 
-
-# Instancia global
 email_service = EmailService()

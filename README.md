@@ -128,6 +128,7 @@ python -m alembic upgrade head
 # 7. Iniciar la aplicación
 python -m uvicorn app.main:app --reload --port 8000
 
+ ````
 ## 🚀 Disponibilidad de la App
 
 Una vez iniciada, puedes acceder a los siguientes servicios:

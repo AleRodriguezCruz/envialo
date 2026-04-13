@@ -50,6 +50,7 @@ Repositorios (acceso a datos)
 PostgreSQL (metadatos) + Supabase Storage (archivos)
 
 
+
 ---
 
 ## 🛠 Stack tecnológico
@@ -126,8 +127,6 @@ python -m alembic upgrade head
 
 # 7. Iniciar la aplicación
 python -m uvicorn app.main:app --reload --port 8000
-
----
 
 ## 🚀 Disponibilidad de la App
 

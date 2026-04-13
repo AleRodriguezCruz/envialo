@@ -176,6 +176,7 @@ python scripts/run_worker.py
 
 envialo/
 ├── app/
+<<<<<<< HEAD
 │   ├── api/          # Controladores y rutas de la API
 │   ├── core/         # Configuración, seguridad y excepciones
 │   ├── db/           # Modelos de SQLAlchemy y conexión a DB
@@ -185,10 +186,31 @@ envialo/
 ├── frontend/         # Interfaz de usuario (HTML/JS)
 ├── migrations/       # Scripts de migración de Alembic
 └── scripts/          # Utilidades de automatización
+=======
+│   ├── api/          # Controladores de la API
+│   ├── core/         # Seguridad y Configuración global
+│   ├── db/           # Modelos de SQLAlchemy y conexión
+│   ├── repositories/ # Consultas SQL (Patrón Repository)
+│   ├── services/     # Lógica de negocio (Orquestadores)
+│   └── workers/      # Tareas de limpieza (Background Tasks)
+├── frontend/         # Interfaz de usuario
+├── migrations/       # Historial de versiones de DB
+└── scripts/          # Automatización de tareas
+>>>>>>> 3dd5cdf8d361492c9be047eb042d50e5742b3c87
 
 ---
-
 👥 Créditos e Integrantes
+
+<<<<<<< HEAD
+👥 Créditos e Integrantes
+=======
+Este proyecto fue desarrollado con un enfoque profesional y educativo por:
+
+    Alejandra Rodríguez Cruz de la Cruz- 
+
+    Flor Jazmín Mayon Cisneros
+## Justificación de arquitectura
+>>>>>>> 3dd5cdf8d361492c9be047eb042d50e5742b3c87
 
 Este proyecto fue desarrollado con un enfoque profesional y educativo por:
 
@@ -196,6 +218,7 @@ Este proyecto fue desarrollado con un enfoque profesional y educativo por:
 
     Flor Jazmín Mayon Cisneros
 
+<<<<<<< HEAD
 ## Screenshots
 
 ### Interfaz de subida
@@ -203,3 +226,7 @@ Este proyecto fue desarrollado con un enfoque profesional y educativo por:
 
 ### Correo recibido
 ![Correo recibido](screenshots/email.png)
+=======
+### ¿Por qué URLs firmadas?
+Los archivos nunca se exponen directamente. Cada URL de descarga expira en 1 hora, lo que previene el acceso no autorizado incluso si alguien obtiene la URL.
+>>>>>>> 3dd5cdf8d361492c9be047eb042d50e5742b3c87
